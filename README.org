@@ -31,7 +31,7 @@ and define it for all filetypes that are a lisp, I could instead define a
 minor mode and enable it as desired while editing files.
 
 #+begin_src lua
-local minor_mode = require('nvim-minor-mode')
+local minor_mode = require('minor-mode')
 
 minor_mode.define('lisp', 'LispMode', {
   ["n", "j", function ()
