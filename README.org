@@ -34,12 +34,13 @@ minor mode and enable it as desired while editing files.
 local minor_mode = require('nvim-minor-mode')
 
 minor_mode.define('lisp', 'LispMode', {
-  "j" = function ()
-    vim.fn.searchpair('(', '', ')')
-  end,
-  "k" = function ()
-    vim.fn.searchpair('(', '', ')', 'b')
-  end,
+  ["n", "j", function ()
+    vim.fn.seach('(')
+   end, { silent = true }],
+
+  ["n", "k", function ()
+     vim.fn.search('(', 'b')
+   end, { silent = true}],
 })
 #+end_src
 
@@ -64,13 +65,36 @@ vim-expr :: string
 
 command-name :: string
 
+  A valid vim command name.
+
+mode :: "n" | "v" | "x" | ... | "!" ""
+
+  See [map-overview] or [nvim_set_keymap]
+
 minor-mode-name :: string
 
 lhs :: string
 
 rhs :: vim-expr | function
 
-keymap :: { lhs = rhs }
+  Standard right hand side of a keybinding, but can also be a lua function.
+
+mapping-opts :: {
+  nowait = boolean,
+  silent = boolean,
+  script = boolean,
+  expr = boolean,
+  unique = boolean,
+  noremap = boolean,
+}
+
+  See the definition of {opts} for [nvim_set_keymap].
+
+mapping :: { mode lhs, rhs, mapping-opts || null }
+
+  Same arguments as [nvim_set_keymap], except rhs may also be a lua function.
+
+keymap :: { mapping }
 #+end_example
 
 ** Caveats

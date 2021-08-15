@@ -62,7 +62,8 @@
     (local key (rtc lhs))
     ;; TODO maybe this should be nested under the mode name?
     (tset M.callbacks key rhs)
-    (var lua-expr (.. "require('minor-mode').callbacks[" (quote-expr key) "]()"))
+    (var lua-expr
+         (.. "require('minor-mode').callbacks[" (quote-expr key) "]()"))
     (set rhs_ (.. "<cmd>lua " lua-expr :<cr>)))
   (nvim.buf_set_keymap 0 mode lhs rhs_ (or ?opts {})))
 
@@ -77,8 +78,8 @@
 ;; TODO autogenerate command-name
 (fn M.define [mode-name command-name mapping]
   "Define a new minor mode"
-  (local lua-expr
-         (.. "require('minor-mode').toggle(" (quote-expr mode-name) ")"))
+  (local lua-expr (.. "require('minor-mode').toggle(" (quote-expr mode-name)
+                      ")"))
   (ex (.. "command! " command-name " :lua " lua-expr :<cr>))
   (tset minor-modes-enabled mode-name false)
   (tset keymaps mode-name mapping))
@@ -86,14 +87,12 @@
 ;; TODO replace add minor mode command
 (fn M.enable [mode-name]
   "Activate minor mode"
-  ;; TODO replace with toggle command
   (tset minor-modes-enabled mode-name true)
   (local keymap (. keymaps mode-name))
   ;; TODO restore previous keymap
   ;; (local local-keymap (nvim.buf_get_keymap 0 :n))
-  (each [lhs rhs (pairs keymap)]
-    (assert (-> lhs (type) (= :string)))
-    (bmap :n lhs rhs)))
+  (each [_ map (ipairs keymap)]
+    (bmap (unpack map))))
 
 ;; TODO restore previous bindings
 ;; (fn restore-map [lhs]
