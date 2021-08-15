@@ -1,5 +1,7 @@
 * Unreleased
 
+* v0.2.0
+
 ** Features
 - Additional error handling for function based keybindings
 

@@ -8,6 +8,7 @@ FNL = fennel
 FNL += $(patsubst %, --add-fennel-path %, $(fennel_paths))
 FNL += $(patsubst %, --add-package-path %, $(lua_paths))
 FNL += $(FNL_FLAGS)
+FNL += --require-as-include
 FNL += --compile
 
 lua_files := $(patsubst fnl/%.fnl, lua/%.lua, $(wildcard fnl/*.fnl))
