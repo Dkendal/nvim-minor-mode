@@ -25,6 +25,7 @@ clean::
 lua/%.lua:: fnl/%.fnl
 	mkdir -p $(dir $@)
 	if ! $(FNL) $< > $@; then rm $@; fi
+	sed -i -E '/debug.traceback = fennel.traceback/d' $@
 
 % ::
 	@echo $@
