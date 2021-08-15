@@ -24,23 +24,39 @@ use { 'Dkendal/nvim-minor-mode' }
 
 ** Usage
 
-Minor modes can be defined using the =define= function.
+Minor modes can be defined using the =define_minor_mode= function.
 
 Say I wanted to defined a "lisp" minor mode. While I could write a new plugin
 and define it for all filetypes that are a lisp, I could instead define a
 minor mode and enable it as desired while editing files.
 
 #+begin_src lua
-local minor_mode = require('minor-mode')
+local define_minor_mode = require('minor-mode').define_minor_mode
 
-minor_mode.define('lisp', 'LispMode', {
-  ["n", "j", function ()
-    vim.fn.search('(')
-   end, { silent = true }],
+define_minor_mode('lisp', [[
+  Minor modes for lisps to navigate sexps. Replaces some normal movement
+  keybindings.
+  ]], {
+  command = 'LispMode',
+  keymap = {
+    {
+      'n',
+      'j',
+      function()
+        vim.fn.search('(')
+      end,
+      { silent = true }
+    },
 
-  ["n", "k", function ()
-     vim.fn.search('(', 'b')
-   end, { silent = true}],
+    {
+      'n',
+      'k',
+      function()
+        vim.fn.search('(', 'b')
+      end,
+      { silent = true }
+    }
+  }
 })
 #+end_src
 
@@ -51,12 +67,6 @@ The second argument, =LispMode=, will be used to define a new command.
 #+end_src
 
 Calling it again will remove all the keymaps.
-
-** API
-
-*** =define(minor-mode-name, command-name, keymap)=
-
-Define a new minor mode.
 
 ** Types
 
@@ -96,6 +106,40 @@ mapping :: { mode lhs, rhs, mapping-opts || null }
 
 keymap :: { mapping }
 #+end_example
+
+
+** API
+All top level API functions should treat kebab-case methods and
+underscore_case functions interchangeably for fennel and lua use,
+respectively.
+
+*** =define_minor_mode(mode :: minor-mode-name, doc :: string, minor-mode-opts)=
+
+Defines a new minor mode whose name is =mode= (a string). It defines a Vim
+command named after =opts.command= to toggle the minor mode, standard Vim
+command naming rules apply (:h :user-cmd-ambiguous). Provide a short
+explanation of what the minor mode is in =doc-string= - this value isn't
+exposed anywhere at the moment.
+
+=minor-mode-opts= is a map, key values are defined below:
+
+**** =:command= =command-name=
+
+**** =:keymap= =keymap=
+
+An array of key bindings that will be activated with the minor mode. Key
+bindings are the same as arguments to =nvim_set_keymap= (:h nvim_set_keymap())
+
+Here's an example keymap:
+
+#+begin_src lua
+{
+  keymap = {
+    { 'n', '<c-p>', ':echo \"down\"', { silent = true } },
+    { 'n', '<c-n>', ':echo \"up\"',   { silent = true } } }
+  }
+}
+#+end_src
 
 ** Caveats
 

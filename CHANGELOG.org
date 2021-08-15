@@ -1,5 +1,9 @@
 * Unreleased
 
+** Features
+- Soft deprecation of =define/3= in favor of =define-minor-mode/3=
+- Add more documentation for =define-minor-mode/3=
+
 * v0.2.0
 
 ** Features
