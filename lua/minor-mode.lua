@@ -96,7 +96,7 @@ end
 local M = {}
 local keymaps = {}
 local minor_modes_enabled = {}
-M["enabled-list"] = function()
+local function enabled_list()
   local tbl_12_auto = {}
   for mode_name, bit_status in pairs(minor_modes_enabled) do
     local _13_
@@ -109,22 +109,7 @@ M["enabled-list"] = function()
   end
   return tbl_12_auto
 end
-M.toggle = function(mode_name)
-  if minor_modes_enabled[mode_name] then
-    M.disable(mode_name)
-  else
-    M.enable(mode_name)
-  end
-  return print((mode_name .. " " .. tostring(minor_modes_enabled[mode_name])))
-end
-M.define = function(mode_name, command_name, mapping)
-  local lua_expr = ("require('minor-mode').toggle(" .. quote_expr(mode_name) .. ")")
-  ex(("command! " .. command_name .. " :lua " .. lua_expr .. "<cr>"))
-  do end (minor_modes_enabled)[mode_name] = false
-  keymaps[mode_name] = mapping
-  return nil
-end
-M.enable = function(mode_name)
+local function enable(mode_name)
   minor_modes_enabled[mode_name] = true
   local keymap = keymaps[mode_name]
   for _, map in ipairs(keymap) do
@@ -132,18 +117,40 @@ M.enable = function(mode_name)
   end
   return nil
 end
-M.disable = function(mode_name)
+local function disable(mode_name)
   minor_modes_enabled[mode_name] = false
   local keymap = keymaps[mode_name]
-  for _, _16_ in ipairs(keymap) do
-    local _each_17_ = _16_
-    local mode = _each_17_[1]
-    local lhs = _each_17_[2]
+  for _, _15_ in ipairs(keymap) do
+    local _each_16_ = _15_
+    local mode = _each_16_[1]
+    local lhs = _each_16_[2]
     nvim.buf_del_keymap(0, mode, lhs)
   end
   return nil
 end
-M.setup = function()
-  return "Configure the plugin with global defaults"
+local function toggle(mode_name)
+  if minor_modes_enabled[mode_name] then
+    disable(mode_name)
+  else
+    enable(mode_name)
+  end
+  return print((mode_name .. " " .. tostring(minor_modes_enabled[mode_name])))
 end
-return trace_module(M)
+local function define_minor_mode(mode, doc_string, opts)
+  local _local_18_ = opts
+  local command = _local_18_["command"]
+  local keymap = _local_18_["keymap"]
+  assert((type(command) == "string"), ("expected table entry 'command' to be a string, got: " .. type(command)))
+  assert((type(keymap) == "table"), ("expected table entry 'keymap' to be a table, got: " .. type(keymap)))
+  local lua_expr = ("require('minor-mode').toggle(" .. quote_expr(mode) .. ")")
+  ex(("command! " .. command .. " :lua " .. lua_expr .. "<cr>"))
+  do end (minor_modes_enabled)[mode] = false
+  keymaps[mode] = keymap
+  return nil
+end
+local function define(mode, command, keymap)
+  print("define is deprecated, use define-minor-mode instead")
+  return define_minor_mode(mode, "", {command = command, keymap = keymap})
+end
+local exports = {["define-minor-mode"] = define_minor_mode, define = define, define_minor_mode = define_minor_mode, disable = disable, enable = enable, toggle = toggle}
+return trace_module(exports)
