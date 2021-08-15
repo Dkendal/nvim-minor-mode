@@ -99,9 +99,9 @@ keymap :: { mapping }
 
 ** Caveats
 
-This plugin uses buffer local keymaps, if you already have a keymap present,
-or overwrite it will a minor mode is active and then disable the minor mode,
-the keymap will be removed.
+This plugin uses buffer local keymaps, if you already have a buffer local
+keymap present, or overwrite it with another while a minor mode is active and
+then disable said minor mode, the keymap will be removed.
 
 ** Related
 
