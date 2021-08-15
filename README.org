@@ -28,7 +28,7 @@ Minor modes can be defined using the =define= function.
 
 Say I wanted to defined a "lisp" minor mode. While I could write a new plugin
 and define it for all filetypes that are a lisp, I could instead define a
-minor mode for moving between sexp.
+minor mode and enable it as desired while editing files.
 
 #+begin_src lua
 local minor_mode = require('nvim-minor-mode')
@@ -43,7 +43,7 @@ minor_mode.define('lisp', 'LispMode', {
 })
 #+end_src
 
-The second argument ='LispMode'= will be use to define a new command.
+The second argument, =LispMode=, will be used to define a new command.
 
 #+begin_src vim
 :LispMode
