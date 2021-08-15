@@ -1,5 +1,8 @@
 * Unreleased
 
+** Features
+- Additional error handling for function based keybindings
+
 ** Fixes
 - Fix error that occurred when disabling minor modes
 

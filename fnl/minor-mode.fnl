@@ -1,5 +1,10 @@
 (set debug.traceback fennel.traceback)
 
+(local nvim (require :minor-mode.nvim))
+(local {: bmap} (require :minor-mode.map))
+(local {: quote-expr : rtc} (require :minor-mode.strings))
+(local {: trace-module} (require :minor-mode.trace))
+
 (local api vim.api)
 (local ex vim.cmd)
 (local luv vim.loop)
@@ -10,69 +15,22 @@
   "Lua 5.2 table pack"
   (values [...] (select "#" ...)))
 
-(local nvim {})
-(setmetatable nvim {:__index #(. vim.api (.. :nvim_ $2))})
-
 (local M {})
 
 (local keymaps {})
 (local minor-modes-enabled {})
-(local counter {:n -1})
-
-(setmetatable counter {:__call (fn [self]
-                                 (set self.n (+ self 1))
-                                 self.n)})
-
-;; TODO move to a different file
-(fn trace [func]
-  "Add a stacktrace to the function on error"
-  (fn [...]
-    (local args [...])
-
-    (fn wrapped-func []
-      (func (unpack args)))
-
-    (match [(xpcall wrapped-func debug.traceback)]
-      [false err] (error err)
-      [true value] value)))
-
-;; TODO replace with a function to trigger callbag and trace calls
-(set M.callbacks {})
 
 (fn M.enabled-list []
   (icollect [mode-name bit-status (pairs minor-modes-enabled)]
     (when (= bit-status 1)
       mode-name)))
 
-(fn rtc [code]
-  "Replace termcodes"
-  (nvim.replace_termcodes code true true true))
-
-(fn quote-expr [expr]
-  "Surround expr with double quotes, and escape any double quotes."
-  (.. "\"" (string.gsub expr "\"" "\\\"") "\""))
-
-(fn bmap [mode lhs rhs ?opts]
-  "
-  Define a new buffer local map
-  rhs may be a vim expression as a string, or a function callback.
-  "
-  (var rhs_ rhs)
-  (when (= (type rhs) :function)
-    (local key (rtc lhs))
-    ;; TODO maybe this should be nested under the mode name?
-    (tset M.callbacks key rhs)
-    (var lua-expr
-         (.. "require('minor-mode').callbacks[" (quote-expr key) "]()"))
-    (set rhs_ (.. "<cmd>lua " lua-expr :<cr>)))
-  (nvim.buf_set_keymap 0 mode lhs rhs_ (or ?opts {})))
-
 (fn M.toggle [mode-name]
-  ;; TODO remove
-  (print (.. mode-name " " (tostring (not (. minor-modes-enabled mode-name)))))
+  "Toggle a minor mode, enable or disable will be called conditionaly"
   (if (. minor-modes-enabled mode-name)
       (M.disable mode-name)
-      (M.enable mode-name)))
+      (M.enable mode-name))
+  (print (.. mode-name " " (tostring (. minor-modes-enabled mode-name)))))
 
 ;; TODO rename to def-minor-mode
 ;; TODO autogenerate command-name
@@ -114,9 +72,5 @@
 (fn M.setup []
   "Configure the plugin with global defaults")
 
-(setmetatable
-  {}
-  {:__index (fn [self key]
-              (match (. M key)
-                (where func (-> func (type) (= :function))) (trace func)
-                value value))})
+(trace-module M)
+
