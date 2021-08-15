@@ -114,12 +114,9 @@
 (fn M.setup []
   "Configure the plugin with global defaults")
 
-(local traced-module {})
-(setmetatable traced-module
-              {:__index (fn [self key]
-                          (match (. M key)
-                            (where func (-> func (type) (= :function))) (trace func)
-                            value value))})
-
-traced-module
-
+(setmetatable
+  {}
+  {:__index (fn [self key]
+              (match (. M key)
+                (where func (-> func (type) (= :function))) (trace func)
+                value value))})
