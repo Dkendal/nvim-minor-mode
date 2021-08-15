@@ -34,13 +34,25 @@
 
 ;; TODO rename to def-minor-mode
 ;; TODO autogenerate command-name
-(fn M.define [mode-name command-name mapping]
-  "Define a new minor mode"
-  (local lua-expr (.. "require('minor-mode').toggle(" (quote-expr mode-name)
-                      ")"))
-  (ex (.. "command! " command-name " :lua " lua-expr :<cr>))
-  (tset minor-modes-enabled mode-name false)
-  (tset keymaps mode-name mapping))
+(fn M.define [...]
+  "
+  define mode command keymap
+
+  Defines a new minor mode whose name is `mode` (a string). It defines a vim
+  command named `command` to toggle the minor mode, standard vim command naming
+  rules apply (:h :user-cmd-ambiguous).
+  "
+  ;; Argument parsing
+  (local {: mode : command : keymap}
+         (match ...
+           (mode command keymap) {: mode : command : keymap}))
+
+  (local lua-expr (.. "require('minor-mode').toggle(" (quote-expr mode) ")"))
+
+  (ex (.. "command! " command " :lua " lua-expr :<cr>))
+
+  (tset minor-modes-enabled mode false)
+  (tset keymaps mode keymap))
 
 ;; TODO replace add minor mode command
 (fn M.enable [mode-name]
