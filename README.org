@@ -35,7 +35,7 @@ local minor_mode = require('nvim-minor-mode')
 
 minor_mode.define('lisp', 'LispMode', {
   ["n", "j", function ()
-    vim.fn.seach('(')
+    vim.fn.search('(')
    end, { silent = true }],
 
   ["n", "k", function ()
