@@ -1,4 +1,7 @@
 * Unreleased
 
+** Fixes
+- Fix error that occurred when disabling minor modes
+
 * v0.1.0
 - added =define/3= function

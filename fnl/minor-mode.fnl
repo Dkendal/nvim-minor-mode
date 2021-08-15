@@ -108,8 +108,8 @@
   "Disable minor-mode keymap"
   (tset minor-modes-enabled mode-name false)
   (local keymap (. keymaps mode-name))
-  (each [lhs _ (pairs keymap)]
-    (nvim.buf_del_keymap 0 :n lhs)))
+  (each [_ [mode lhs] (ipairs keymap)]
+    (nvim.buf_del_keymap 0 mode lhs)))
 
 (fn M.setup []
   "Configure the plugin with global defaults")
